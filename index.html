@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Подсказка адреса с DaData (через unpkg)</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- заменённые CDN-ссылки -->
+  <script src="https://unpkg.com/suggestions-jquery@20.2.0/dist/js/jquery.suggestions.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/suggestions-jquery@20.2.0/dist/css/suggestions.min.css" />
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="bg-white shadow-xl rounded-2xl p-8 max-w-lg w-full">
+      <h1 class="text-2xl font-bold text-center text-blue-800 mb-4">
+        Введите адрес
+      </h1>
+      <form class="space-y-4" onsubmit="return validateAddress()">
+        <label for="address" class="block text-sm font-medium">Адрес</label>
+        <input type="text" id="address" name="address"
+               class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 text-lg"
+               placeholder="Начните вводить адрес..." autocomplete="off" required />
+
+        <div id="validation-message" class="text-sm text-red-600 hidden">
+          Пожалуйста, выберите адрес из подсказки
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-800 text-white py-3 rounded-lg hover:bg-blue-900 transition">
+          Продолжить
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let addressValid = false;
+
+    $(document).ready(function() {
+      $("#address").suggestions({
+        token: "e7102733fc37904b84bcd3aa3946a3aea76f6d02", // API-токен DaData
+        type: "ADDRESS",
+        onSelect: function(suggestion) {
+          addressValid = true;
+          $("#validation-message").addClass("hidden");
+        },
+        onSelectNothing: function() {
+          addressValid = false;
+          $("#validation-message").removeClass("hidden");
+        }
+      });
+    });
+
+    function validateAddress() {
+      if (!addressValid) {
+        $("#validation-message").removeClass("hidden");
+        return false;
+      }
+      return true;
+    }
+  </script>
+</body>
+</html>
