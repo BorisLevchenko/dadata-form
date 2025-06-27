@@ -3,12 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Подсказка адреса с DaData (через unpkg)</title>
+  <title>Подсказка адреса с DaData</title>
+
+  <!-- Open Graph мета-теги -->
+  <meta property="og:title" content="Форма ввода адреса" />
+  <meta property="og:description" content="Введите ваш адрес с помощью подсказки из справочника ФИАС через DaData." />
+  <meta property="og:image" content="https://borislevchenko.github.io/dadata-form/preview.jpg" />
+  <meta property="og:url" content="https://borislevchenko.github.io/dadata-form/" />
+  <meta property="og:type" content="website" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-  <!-- заменённые CDN-ссылки -->
   <script src="https://unpkg.com/suggestions-jquery@20.1.0/dist/js/jquery.suggestions.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/suggestions-jquery@20.1.0/dist/css/suggestions.min.css" />
 </head>
@@ -41,7 +46,7 @@
 
     $(document).ready(function() {
       $("#address").suggestions({
-        token: "e7102733fc37904b84bcd3aa3946a3aea76f6d02", // API-токен DaData
+        token: "e7102733fc37904b84bcd3aa3946a3aea76f6d02",
         type: "ADDRESS",
         onSelect: function(suggestion) {
           addressValid = true;
