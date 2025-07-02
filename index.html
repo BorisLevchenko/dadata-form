@@ -1,93 +1,78 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Форма адреса с картой</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Документ через камеру</title>
+  <style>
+    #camera-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      margin: auto;
+    }
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Форма ввода адреса с картой" />
-  <meta property="og:description" content="Введите адрес и сразу увидьте его на карте!" />
-  <meta property="og:image" content="https://borislevchenko.github.io/dadata-form/preview.jpg" />
-  <meta property="og:url" content="https://borislevchenko.github.io/dadata-form/" />
-  <meta property="og:type" content="website" />
+    video {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <!-- DaData -->
-  <script src="https://unpkg.com/suggestions-jquery@20.1.0/dist/js/jquery.suggestions.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/suggestions-jquery@20.1.0/dist/css/suggestions.min.css" />
-  <!-- Leaflet (карта) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    /* Рамка для наведения */
+    .frame-overlay {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      width: 80%;
+      height: 60%;
+      border: 4px dashed red;
+      box-sizing: border-box;
+      pointer-events: none;
+      border-radius: 8px;
+    }
+
+    button {
+      display: block;
+      margin: 15px auto;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="min-h-screen flex flex-col items-center justify-center px-4 py-8">
-    <div class="bg-white shadow-xl rounded-2xl p-8 max-w-lg w-full mb-6">
-      <h1 class="text-2xl font-bold text-center text-blue-800 mb-4">Введите адрес</h1>
-      <form class="space-y-4" onsubmit="return validateAddress()">
-        <input type="text" id="address" name="address"
-               class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 text-lg"
-               placeholder="Начните вводить адрес..." autocomplete="off" required />
+<body>
 
-        <div id="validation-message" class="text-sm text-red-600 hidden">
-          Пожалуйста, выберите адрес из подсказки
-        </div>
-
-        <button type="submit"
-                class="w-full bg-blue-800 text-white py-3 rounded-lg hover:bg-blue-900 transition">
-          Продолжить
-        </button>
-      </form>
-    </div>
-
-    <div id="map" class="w-full max-w-lg h-96 rounded-lg shadow-lg"></div>
+  <div id="camera-wrapper">
+    <video id="camera" autoplay playsinline></video>
+    <div class="frame-overlay"></div>
   </div>
+  
+  <button id="take-photo">Сделать фото</button>
+  <canvas id="snapshot" style="display:none;"></canvas>
 
   <script>
-    let addressValid = false;
-    let map, marker;
+    const video = document.getElementById('camera');
+    const canvas = document.getElementById('snapshot');
+    const button = document.getElementById('take-photo');
 
-    $(document).ready(function() {
-      $("#address").suggestions({
-        token: "e7102733fc37904b84bcd3aa3946a3aea76f6d02",
-        type: "ADDRESS",
-        onSelect: function(suggestion) {
-          addressValid = true;
-          $("#validation-message").addClass("hidden");
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = stream;
+      } catch (err) {
+        alert("Не удалось получить доступ к камере: " + err.message);
+      }
+    }
 
-          const lat = suggestion.data.geo_lat;
-          const lon = suggestion.data.geo_lon;
+    button.addEventListener('click', () => {
+      const ctx = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          if (lat && lon) {
-            if (!map) {
-              map = L.map('map').setView([lat, lon], 14);
-              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-              }).addTo(map);
-              marker = L.marker([lat, lon]).addTo(map);
-            } else {
-              map.setView([lat, lon], 14);
-              marker.setLatLng([lat, lon]);
-            }
-          }
-        },
-        onSelectNothing: function() {
-          addressValid = false;
-          $("#validation-message").removeClass("hidden");
-        }
-      });
+      // Получаем фото в base64
+      const imageData = canvas.toDataURL('image/jpeg');
+      console.log("Фото:", imageData); // отправьте на сервер или покажите предпросмотр
     });
 
-    function validateAddress() {
-      if (!addressValid) {
-        $("#validation-message").removeClass("hidden");
-        return false;
-      }
-      return true;
-    }
+    startCamera();
   </script>
 </body>
 </html>
