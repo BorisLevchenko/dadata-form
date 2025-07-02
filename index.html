@@ -1,78 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Документ через камеру</title>
-  <style>
-    #camera-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 480px;
-      margin: auto;
-    }
-
-    video {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-    }
-
-    /* Рамка для наведения */
-    .frame-overlay {
-      position: absolute;
-      top: 10%;
-      left: 10%;
-      width: 80%;
-      height: 60%;
-      border: 4px dashed red;
-      box-sizing: border-box;
-      pointer-events: none;
-      border-radius: 8px;
-    }
-
-    button {
-      display: block;
-      margin: 15px auto;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Сканер документов</title>
 </head>
 <body>
-
   <div id="camera-wrapper">
     <video id="camera" autoplay playsinline></video>
     <div class="frame-overlay"></div>
   </div>
-  
-  <button id="take-photo">Сделать фото</button>
-  <canvas id="snapshot" style="display:none;"></canvas>
 
+  <button id="take-photo">📸 Снять</button>
+  <canvas id="snapshot" style="display: none;"></canvas>
+
+  <script src="script.js"></script>
   <script>
-    const video = document.getElementById('camera');
-    const canvas = document.getElementById('snapshot');
-    const button = document.getElementById('take-photo');
-
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
-      } catch (err) {
-        alert("Не удалось получить доступ к камере: " + err.message);
-      }
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("SW зарегистрирован"))
+        .catch(err => console.error("Ошибка регистрации SW:", err));
     }
-
-    button.addEventListener('click', () => {
-      const ctx = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Получаем фото в base64
-      const imageData = canvas.toDataURL('image/jpeg');
-      console.log("Фото:", imageData); // отправьте на сервер или покажите предпросмотр
-    });
-
-    startCamera();
   </script>
 </body>
 </html>
